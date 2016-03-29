@@ -1,0 +1,257 @@
+
+
+spencer jackson
+
+results from sniffing the kboard
+
+usb midi protocol seems to precede each midi message with a redundant opcode in the lower nibble i.e. a note on message:
+ 08 80 64 64  - this is a note on for note 64 with vel 64
+note that
+ pitchbend   eX
+ noteon      8X
+ noteoff     9X
+ CC          BX
+
+for whatever reason sysex messages are preceded by a 04, then as usual with midi, F0 starts andn F7 ends the sysex
+
+ the k-board's sysex manufacture ID is  7e 7f 07 I think
+
+host to k-board ( I assume means hello) see line 578
+ 04:f0:7e:7f:07:06:01:f7
+
+kboard responds
+ 04:f0:7e:00:04:06:02:00:04:01:5f:1a 
+ 04:00:00:00:04:01:01:00:04:01:00:00:05:f7:01:28
+
+
+device is now connected
+
+
+# I believe each parameter change results in dumping the whole state in a sysex. here's an example (which I think is the default state)
+
+
+f0 00 01 04
+5f 7a 1a 04 00 01 00 04 02 22 20 04 2e 46 00 04
+10 21 01 04 56 00 7f 04 7f 7f 75 04 7f 64 01 04
+0f 2b 00 04 00 01 00 04 7f 00 01 04 01 01 01 04
+00 01 01 04 01 00 01 04 00 0a 00               
+00 00 01 04
+00 00 5e 04 7f 00 00 04 00 00 05 04 7f 00 00 04
+10 64 7f 04 00 00 00 04 06 02 00 04 00 00 64 04
+7f 00 00 04 00 00 00 04 00 00 64 04 7f 00 00 04
+00 00 00 04 00 00 64 04 45 3a 00               
+00 00 06 04
+00 00 64 04 7f 00 00 04 00 00 00 04 00 00 64 04
+00 7f 00 04 00 00 02 04 00 01 00 04 30 3c 3d 04
+00 7f 00 04 3f 00 18 04 7f 00 00 04 00 01 31 04
+00 3e 3f 04 00 7f 00 04 3f 19 00               
+7f 00 00 04
+00 01 32 04 40 00 41 04 00 7f 00 04 3f 1a 7f 04
+00 00 00 04 00 01 33 04 42 43 00 04 00 7f 00 04
+3f 1b 7f 04 00 00 00 04 00 01 34 04 44 45 00 04
+00 7f 00 04 3f 1c 7f 04 00 00 00               
+00 01 35 04
+46 47 00 04 7f 00 00 04 3f 1d 7f 04 00 00 00 04
+00 01 36 04 48 49 00 04 7f 00 00 04 3f 1e 7f 04
+00 00 00 04 01 00 37 04 4a 4b 00 04 7f 00 3f 04
+00 1f 7f 04 00 00 00 04 01 38 00               
+4c 4d 00 04
+7f 00 3f 04 20 00 7f 04 00 00 00 04 01 39 4e 04
+00 4f 00 04 7f 00 3f 04 21 7f 00 04 00 00 00 04
+01 3a 50 04 51 00 00 04 7f 00 3f 04 22 7f 00 04
+00 00 00 04 01 3b 52 04 53 00 00               
+7f 00 3f 04
+23 7f 00 04 00 00 00 04 01 3c 54 04 55 00 7f 04
+00 00 3f 04 24 7f 00 04 00 00 00 04 01 3d 56 04
+57 00 7f 04 00 00 3f 04 25 7f 00 04 00 00 01 04
+00 3e 58 04 59 00 7f 04 00 3f 00               
+26 7f 00 04
+00 00 01 04 3f 00 5a 04 5b 00 7f 04 00 3f 27 04
+00 7f 00 04 00 00 01 04 40 5c 00 04 5d 00 7f 04
+00 3f 28 04 7f 00 00 04 00 00 01 04 41 5e 5f 04
+00 00 7f 04 00 3f 29 04 7f 00 00               
+00 00 01 04
+42 60 61 04 00 00 7f 04 00 3f 2a 04 7f 00 00 04
+00 00 01 04 43 62 63 04 00 7f 00 04 00 3f 2b 04
+7f 00 00 04 00 00 01 04 44 64 65 04 00 7f 00 04
+00 3f 2c 04 7f 00 00 04 00 01 00               
+45 66 67 04
+00 7f 00 04 3f 00 2d 04 7f 00 00 04 00 01 46 04
+00 68 69 04 00 7f 00 04 3f 2e 00 04 7f 00 00 04
+00 01 47 04 6a 00 6b 04 00 7f 00 04 3f 2f 7f 04
+00 00 00 04 00 01 48 04 6c 6d 00               
+00 7f 00 04
+3f 30 7f 04 00 00 00 04 00 01 7f 04 6e 6f 00 04
+00 7f 00 04 3f 01 00 04 00 64 00 04 7f 00 00 04
+05 70 01 04 00 00 00 04 64 7f 00 04 00 05 71 04
+00 01 00 04 00 64 7f 04 00 00 00               
+06 00 01 04
+00 00 64 04 7f 02 00 04 00 06 01 04 01 00 00 04
+00 64 7f 04 00 00 06 04 03 06 20 04 01 00 00 04
+00 76 00 07 00 10 f7                           
+
+
+this is split over 12 usb packets, but I believe that will be transparent to this program
+so, as far as I can tell, here's the decomposition
+
+04 f0 00 01 04
+5f 7a 1a 04 00 01 00 04 02 22 20 04 2e 46 00 04
+[10 on threshold (01,7f)] 21 01 04 56 00 [7f pressure disabled return val, (0,7f,7f if off)] 04 [7f tilt disabled return val (0,7f, 7f if off)] 7f [75 pressure diabled return &0x10, tilt disabled return &0x20 ] 04 7f 64 01 04
+0f [2b tilt sensitivity (46,0) inverted logic] 00 04 00 01 [00 midi channel (00, 0f)] 04 [7f 00 bend pad range max, min (00,7f) each step changes range by 6ish] 01 04 01 01 01 04
+00 01 01 04 01 00 01 04 00 0a 00               
+
+04 00 00 [01 pressure CC (0,7f, 7f can be channel pressure)] 04
+00 00 [5e pressure sensitivity (3c,7e)] 04 7f [00 changes to 04 when pressure is channel pressure] 00 04 00 00 05 04 [7f tilt CC (0,7f, 7f can be bend)] 00 00 04
+[10 changes to 00 when tilt not bend] 64 7f 04 00 00 00 04 06 02 00 04 00 00 64 04
+7f 00 00 04 00 00 00 04 00 00 64 04 7f 00 00 04
+00 00 00 04 00 00 64 04 [45 3a tilt bend range max, min (00,7f) each step increases range by 6ish] 00               
+
+04 00 00 06 04
+00 00 64 04 7f 00 00 04 00 00 00 04 [00 velocity curve (00,05)] 00 [64 velocity sensitivity (0,74)] 04
+[00 velocity sensitivity high bit (40)] 7f 00 04 00 00 02 04 00 01 00 04 30 3c 3d 04
+00 7f 00 04 3f 00 18 04 7f 00 00 04 00 01 31 04
+00 3e 3f 04 00 7f 00 04 3f 19 00               
+
+04 7f 00 00 04
+00 01 32 04 40 00 41 04 00 7f 00 04 3f 1a 7f 04
+00 00 00 04 00 01 33 04 42 43 00 04 00 7f 00 04
+3f 1b 7f 04 00 00 00 04 00 01 34 04 44 45 00 04
+00 7f 00 04 3f 1c 7f 04 00 00 00               
+
+04 00 01 35 04
+46 47 00 04 7f 00 00 04 3f 1d 7f 04 00 00 00 04
+00 01 36 04 48 49 00 04 7f 00 00 04 3f 1e 7f 04
+00 00 00 04 01 00 37 04 4a 4b 00 04 7f 00 3f 04
+00 1f 7f 04 00 00 00 04 01 38 00               
+
+04 4c 4d 00 04
+7f 00 3f 04 20 00 7f 04 00 00 00 04 01 39 4e 04
+00 4f 00 04 7f 00 3f 04 21 7f 00 04 00 00 00 04
+01 3a 50 04 51 00 00 04 7f 00 3f 04 22 7f 00 04
+00 00 00 04 01 3b 52 04 53 00 00               
+
+04 7f 00 3f 04
+23 7f 00 04 00 00 00 04 01 3c 54 04 55 00 7f 04
+00 00 3f 04 24 7f 00 04 00 00 00 04 01 3d 56 04
+57 00 7f 04 00 00 3f 04 25 7f 00 04 00 00 01 04
+00 3e 58 04 59 00 7f 04 00 3f 00               
+
+04 26 7f 00 04
+00 00 01 04 3f 00 5a 04 5b 00 7f 04 00 3f 27 04
+00 7f 00 04 00 00 01 04 40 5c 00 04 5d 00 7f 04
+00 3f 28 04 7f 00 00 04 00 00 01 04 41 5e 5f 04
+00 00 7f 04 00 3f 29 04 7f 00 00               
+
+04 00 00 01 04
+42 60 61 04 00 00 7f 04 00 3f 2a 04 7f 00 00 04
+00 00 01 04 43 62 63 04 00 7f 00 04 00 3f 2b 04
+7f 00 00 04 00 00 01 04 44 64 65 04 00 7f 00 04
+00 3f 2c 04 7f 00 00 04 00 01 00               
+
+04 45 66 67 04
+00 7f 00 04 3f 00 2d 04 7f 00 00 04 00 01 46 04
+00 68 69 04 00 7f 00 04 3f 2e 00 04 7f 00 00 04
+00 01 47 04 6a 00 6b 04 00 7f 00 04 3f 2f 7f 04
+00 00 00 04 00 01 48 04 6c 6d 00               
+
+04 00 7f 00 04
+3f 30 7f 04 00 00 00 04 00 01 7f 04 6e 6f 00 04
+00 7f 00 04 3f 01 00 04 00 64 00 04 7f 00 00 04
+05 70 01 04 00 00 00 04 64 7f 00 04 00 05 71 04
+00 01 00 04 00 64 7f 04 00 00 00               
+
+04 06 00 01 04
+00 00 64 04 7f 02 00 04 00 06 01 04 01 00 00 04
+00 64 7f 04 00 00 06 04 03 06 20 04 01 00 00 04
+00 [76 this may be some kind of checksum, since it changed when only the channel changed]  00 07 00 10 f7                           
+
+
+
+notes on the checksum: 
+  the channel changed from 1 to 0 and the checksum bit changed from 77 to 76, similarly pressure cc from 0 to 1 jumped back to 76
+  however when pressure goes to channel pressure then it seems to ignore the extra 04 bit thats flipped, so perhaps only some values are checked
+  bend ranges seem ignored
+  velocity sensitivity is included, the value scaled proportionally to the change in checksum
+  seems the MSBs of sensitivity is ignored
+  preferences though are included
+
+velocity curve enum:
+  0 linear
+  1 log
+  2 sin
+  3 cos
+  4 exp
+  5 invert
+ 
+here's the reset to defaults state:
+59  ( 497 )
+04 f0 00 01 04
+5f 7a 1a 04 00 01 00 04 02 22 20 04 2e 46 00 04
+10 21 01 04 56 00 7f 04 7f 7f 75 04 7f 64 01 04
+0f 32 00 04 00 01 00 04 7f 00 01 04 01 01 01 04
+00 01 01 04 01 00 01 04 00 0a 00               
+60  ( 507 )
+04 00 00 01 04
+00 00 64 04 7f 00 00 04 00 00 05 04 7f 00 00 04
+10 64 7f 04 00 00 00 04 06 02 00 04 00 00 64 04
+7f 00 00 04 00 00 00 04 00 00 64 04 7f 00 00 04
+00 00 00 04 00 00 64 04 45 3a 00               
+61  ( 517 )
+04 00 00 06 04
+00 00 64 04 7f 00 00 04 00 00 00 04 00 00 64 04
+00 7f 00 04 00 00 02 04 00 01 00 04 30 3c 3d 04
+00 7f 00 04 3f 00 18 04 7f 00 00 04 00 01 31 04
+00 3e 3f 04 00 7f 00 04 3f 19 00               
+62  ( 527 )
+04 7f 00 00 04
+00 01 32 04 40 00 41 04 00 7f 00 04 3f 1a 7f 04
+00 00 00 04 00 01 33 04 42 43 00 04 00 7f 00 04
+3f 1b 7f 04 00 00 00 04 00 01 34 04 44 45 00 04
+00 7f 00 04 3f 1c 7f 04 00 00 00               
+63  ( 537 )
+04 00 01 35 04
+46 47 00 04 7f 00 00 04 3f 1d 7f 04 00 00 00 04
+00 01 36 04 48 49 00 04 7f 00 00 04 3f 1e 7f 04
+00 00 00 04 01 00 37 04 4a 4b 00 04 7f 00 3f 04
+00 1f 7f 04 00 00 00 04 01 38 00               
+64  ( 547 )
+04 4c 4d 00 04
+7f 00 3f 04 20 00 7f 04 00 00 00 04 01 39 4e 04
+00 4f 00 04 7f 00 3f 04 21 7f 00 04 00 00 00 04
+01 3a 50 04 51 00 00 04 7f 00 3f 04 22 7f 00 04
+00 00 00 04 01 3b 52 04 53 00 00               
+65  ( 557 )
+04 7f 00 3f 04
+23 7f 00 04 00 00 00 04 01 3c 54 04 55 00 7f 04
+00 00 3f 04 24 7f 00 04 00 00 00 04 01 3d 56 04
+57 00 7f 04 00 00 3f 04 25 7f 00 04 00 00 01 04
+00 3e 58 04 59 00 7f 04 00 3f 00               
+66  ( 567 )
+04 26 7f 00 04
+00 00 01 04 3f 00 5a 04 5b 00 7f 04 00 3f 27 04
+00 7f 00 04 00 00 01 04 40 5c 00 04 5d 00 7f 04
+00 3f 28 04 7f 00 00 04 00 00 01 04 41 5e 5f 04
+00 00 7f 04 00 3f 29 04 7f 00 00               
+67  ( 577 )
+04 00 00 01 04
+42 60 61 04 00 00 7f 04 00 3f 2a 04 7f 00 00 04
+00 00 01 04 43 62 63 04 00 7f 00 04 00 3f 2b 04
+7f 00 00 04 00 00 01 04 44 64 65 04 00 7f 00 04
+00 3f 2c 04 7f 00 00 04 00 01 00               
+68  ( 587 )
+04 45 66 67 04
+00 7f 00 04 3f 00 2d 04 7f 00 00 04 00 01 46 04
+00 68 69 04 00 7f 00 04 3f 2e 00 04 7f 00 00 04
+00 01 47 04 6a 00 6b 04 00 7f 00 04 3f 2f 7f 04
+00 00 00 04 00 01 48 04 6c 6d 00               
+69  ( 597 )
+04 00 7f 00 04
+3f 30 7f 04 00 00 00 04 00 01 7f 04 6e 6f 00 04
+00 7f 00 04 3f 01 00 04 00 64 00 04 7f 00 00 04
+05 70 01 04 00 00 00 04 64 7f 00 04 00 05 71 04
+00 01 00 04 00 64 7f 04 00 00 00               
+70  ( 607 )
+04 06 00 01 04
+00 00 64 04 7f 02 00 04 00 06 01 04 01 00 00 04
+00 64 7f 04 00 00 06 04 03 06 20 04 01 00 00 04
+00 03 00 07 00 00 f7                           
