@@ -1,5 +1,6 @@
 #spencer jackson
 
+hi = [0x04, 0xf0, 0x7e, 0x7f, 0x07, 0x06, 0x01, 0xf7]
 default = [
 0xf0, 0x00, 0x01, #3
 0x5f, 0x7a, 0x1a, 0x00, 0x01, 0x00, 0x02, 0x22, 0x20, 0x2e, 0x46, 0x00, #15
@@ -62,6 +63,9 @@ default = [
 0x00, 0x03, 0x00, 0x00, 0x00, 0xf7 #561
 ]
 
+#                       ___these are guesses_  the rest were sniffed
+#            0  1   2 3 | 4  5  6  7  8  9 10|11 12
+semitones = [64 58 53 48 43 38 33 28 23 15 11 06 0]
 
 def setChannel(sx,val):
     sx[32] = min(max(val,0),15)
@@ -78,24 +82,47 @@ def getPressureCC(sx):
 def setPressureChanPressureMode(sx,val):
     if(val):
         sx[55] = 0x04
-    else
+    else:
         sx[55] = 0
     # this doesn't touch checksum
+def getPressureChanPressureMode(sx):
+    return sx[55]
 
-def setTiltCC(sx):
-    sx[00] = min(max(val,0),0x7f)
+def setTiltCC(sx,val):
+    sx[60] = min(max(val,0),0x7f)
+    recalcChecksum(sx)
+def getTiltCC(sx):
+    return sx[60]
+
+def setTiltBendMode(sx,val):
+    if(val):
+        sx[63] = 0x10
+    else:
+        sx[63] = 0
+    # this doesn't touch checksum
+def getTiltBendMode(sx):
+    return sx[63]
+
+def setPadBendMax(sx,val): 
+    val = min(max(val,0),12)
+    v = 0x7f-semitones[val]
+    sx[34] = min(max(v,0),0x7f)
+    recalcChecksum(sx)
+def setPadBendMin(sx,val):
+    val = min(max(val,0),12)
+    v = semitones[val]
+    sx[35] = min(max(v,0),0x7f)
     recalcChecksum(sx)
 
-def setTiltBendMode(sx):
-    sx[00] = min(max(val,0),0x7f)
+def setTiltBendMax(sx,val): 
+    val = min(max(val,0),12)
+    v = 0x7f-semitones[val]
+    sx[93] = min(max(v,0),0x7f)
     recalcChecksum(sx)
-
-def setPadBendRange(sx):
-    sx[00] = min(max(val,0),0x7f)
-    recalcChecksum(sx)
-
-def setTiltBendRange(sx):
-    sx[00] = min(max(val,0),0x7f)
+def setTiltBendMin(sx,val):
+    val = min(max(val,0),12)
+    v = semitones[val]
+    sx[94] = min(max(v,0),0x7f)
     recalcChecksum(sx)
 
 def setVelocitySensitivity(sx):
@@ -129,3 +156,4 @@ def setOnThreshold(sx):
 def recalcChecksum(sx):
     sx[556] = 0x03
     return sx[556]
+

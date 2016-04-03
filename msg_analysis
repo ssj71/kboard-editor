@@ -100,12 +100,14 @@ so, as far as I can tell, here's the decomposition
 0f [2b tilt sensitivity (46,0) inverted logic] 00 04 00 01 [00 midi channel (00, 0f)] 04 [7f 00 bend pad range max, min (00,7f) each step changes range by 6ish] 01 04 01 01 01 04
 00 01 01 04 01 00 01 04 00 0a 00               
 
+#48
 04 00 00 [01 pressure CC (0,7f, 7f can be channel pressure)] 04
 00 00 [5e pressure sensitivity (3c,7e)] 04 7f [00 changes to 04 when pressure is channel pressure] 00 04 00 00 05 04 [7f tilt CC (0,7f, 7f can be bend)] 00 00 04
 [10 changes to 00 when tilt not bend] 64 7f 04 00 00 00 04 06 02 00 04 00 00 64 04
 7f 00 00 04 00 00 00 04 00 00 64 04 7f 00 00 04
 00 00 00 04 00 00 64 04 [45 3a tilt bend range max, min (00,7f) each step increases range by 6ish] 00               
 
+#96
 04 00 00 06 04
 00 00 64 04 7f 00 00 04 00 00 00 04 [00 velocity curve (00,05)] 00 [64 velocity sensitivity (0,74)] 04
 [00 velocity sensitivity high bit (40)] 7f 00 04 00 00 02 04 00 01 00 04 30 3c 3d 04
