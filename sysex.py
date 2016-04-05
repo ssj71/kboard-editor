@@ -63,9 +63,8 @@ default = [
 0x00, 0x03, 0x00, 0x00, 0x00, 0xf7 #561
 ]
 
-#                       ___these are guesses_  the rest were sniffed
-#            0  1   2 3 | 4  5  6  7  8  9 10|11 12
-semitones = [64 58 53 48 43 38 33 28 23 15 11 06 0]
+#            0  1  2  3  4  5  6  7  8  9  10 11 12
+semitones = [64 58 53 48 43 37 32 27 23 16 11 06 0]
 
 def setChannel(sx,val):
     sx[32] = min(max(val,0),15)
@@ -124,32 +123,44 @@ def setTiltBendMin(sx,val):
     v = semitones[val]
     sx[94] = min(max(v,0),0x7f)
     recalcChecksum(sx)
+def getTiltBendMax(sx): 
+    return semitones.index(sx[93])
+def getTiltBendMin(sx): 
+    return semitones.index(sx[94])
 
-def setVelocitySensitivity(sx):
+#accepts (0,255)
+def setVelocitySensitivity(sx,val):
+    if(val > 0x7f):
+        sx[111] = 0x40
+        val -= 0x7f
+    else:
+        sx[111] = 0x00
+    sx[110] = min(max(val,0),0x7f)
+    recalcChecksum(sx)
+def getVelocitySensitivity(sx):
+    return sx[111]/0x40 + sx[110]
+
+def setPressureSensitivity(sx,val):
+    sx[53] = min(max(val,0),0x7f)
+    recalcChecksum(sx)
+
+def setTiltSensitivity(sx,val):
+    sx[28] = min(max(0x7f-val,0),0x7f)
+    recalcChecksum(sx)
+
+def setVelocityCurve(sx,val):
+    sx[108] = min(max(val,0),0x7f)
+    recalcChecksum(sx)
+
+def setPressureDisabledReturnValue(sx,val):
     sx[00] = min(max(val,0),0x7f)
     recalcChecksum(sx)
 
-def setPressureSensitivity(sx):
+def setTiltDisabledReturnValue(sx,val):
     sx[00] = min(max(val,0),0x7f)
     recalcChecksum(sx)
 
-def setTiltSensitivity(sx):
-    sx[00] = min(max(val,0),0x7f)
-    recalcChecksum(sx)
-
-def setVelocityCurve(sx):
-    sx[00] = min(max(val,0),0x7f)
-    recalcChecksum(sx)
-
-def setPressureDisabledReturnValue(sx):
-    sx[00] = min(max(val,0),0x7f)
-    recalcChecksum(sx)
-
-def setTiltDisabledReturnValue(sx):
-    sx[00] = min(max(val,0),0x7f)
-    recalcChecksum(sx)
-
-def setOnThreshold(sx):
+def setOnThreshold(sx,val):
     sx[00] = min(max(val,0),0x7f)
     recalcChecksum(sx)
 
