@@ -64,7 +64,7 @@ default = [
 ]
 
 #            0  1  2  3  4  5  6  7  8  9  10 11 12
-semitones = [64 58 53 48 43 37 32 27 23 16 11 06 0]
+semitones = [64, 58, 53, 48, 43, 37, 32, 27, 23, 16, 11, 6, 0]
 
 def setChannel(sx,val):
     sx[32] = min(max(val,0),15)
@@ -105,12 +105,12 @@ def getTiltBendMode(sx):
 def setPadBendMax(sx,val): 
     val = min(max(val,0),12)
     v = 0x7f-semitones[val]
-    sx[34] = min(max(v,0),0x7f)
+    sx[35] = min(max(v,0),0x7f)
     recalcChecksum(sx)
 def setPadBendMin(sx,val):
     val = min(max(val,0),12)
     v = semitones[val]
-    sx[35] = min(max(v,0),0x7f)
+    sx[36] = min(max(v,0),0x7f)
     recalcChecksum(sx)
 
 def setTiltBendMax(sx,val): 
@@ -138,7 +138,7 @@ def setVelocitySensitivity(sx,val):
     sx[110] = min(max(val,0),0x7f)
     recalcChecksum(sx)
 def getVelocitySensitivity(sx):
-    return sx[111]/0x40 + sx[110]
+    return 127*sx[111]/0x40 + sx[110]
 
 def setPressureSensitivity(sx,val):
     sx[53] = min(max(val,0),0x7f)
@@ -153,18 +153,32 @@ def setVelocityCurve(sx,val):
     recalcChecksum(sx)
 
 def setPressureDisabledReturnValue(sx,val):
-    sx[00] = min(max(val,0),0x7f)
+    sx[20] = min(max(val,0),0x7f)
+    recalcChecksum(sx)
+def setPressureDisabledReturn(sx,val):
+    if val:
+        sx[23] |= 0x10
+    else:
+        sx[23] &= 0xef 
     recalcChecksum(sx)
 
 def setTiltDisabledReturnValue(sx,val):
-    sx[00] = min(max(val,0),0x7f)
+    sx[21] = min(max(val,0),0x7f)
+    recalcChecksum(sx)
+def setTiltDisabledReturn(sx,val):
+    if val:
+        sx[23] |= 0x20
+    else:
+        sx[23] &= 0xdf 
     recalcChecksum(sx)
 
 def setOnThreshold(sx,val):
-    sx[00] = min(max(val,0),0x7f)
+    sx[15] = min(max(val,0),0x7f)
     recalcChecksum(sx)
 
 def recalcChecksum(sx):
-    sx[556] = 0x03
+    #sx[556] = sx[32] + sx[50] + sx[60]  + sx[35] + sx[36] + sx[93] + sx[94] + sx[110] + sx[111] + sx[53] + sx[28] + sx[108] + sx[20] + sx[21] + sx[15] + sx[23]
+    sx[556] = sx[32] + sx[50] + sx[60]  + sx[110] + sx[111] + sx[53] + sx[28] + sx[108] + sx[20] + sx[21] + sx[15] + sx[23]
+    sx[556] %= 0x7f
     return sx[556]
 
