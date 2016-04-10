@@ -112,6 +112,10 @@ def setPadBendMin(sx,val):
     v = semitones[val]
     sx[36] = min(max(v,0),0x7f)
     recalcChecksum(sx)
+def getPadBendMax(sx):
+    return semitones.index(sx[35])
+def getPadBendMin(sx):
+    return semitones.index(sx[36])
 
 def setTiltBendMax(sx,val): 
     val = min(max(val,0),12)
@@ -143,14 +147,20 @@ def getVelocitySensitivity(sx):
 def setPressureSensitivity(sx,val):
     sx[53] = min(max(val,0),0x7f)
     recalcChecksum(sx)
+def getPressureSensitivity(sx):
+    return sx[53]
 
 def setTiltSensitivity(sx,val):
     sx[28] = min(max(0x7f-val,0),0x7f)
     recalcChecksum(sx)
+def getTiltSensitivity(sx):
+    return sx[28]
 
 def setVelocityCurve(sx,val):
     sx[108] = min(max(val,0),0x7f)
     recalcChecksum(sx)
+def getVelocityCurve(sx):
+    return sx[108]
 
 def setPressureDisabledReturnValue(sx,val):
     sx[20] = min(max(val,0),0x7f)
@@ -161,6 +171,10 @@ def setPressureDisabledReturn(sx,val):
     else:
         sx[23] &= 0xef 
     recalcChecksum(sx)
+def getPressureDisabledReturnValue(sx):
+    return sx[20]
+def getPressureDisabledReturn(sx):
+    return sx[23]
 
 def setTiltDisabledReturnValue(sx,val):
     sx[21] = min(max(val,0),0x7f)
@@ -171,14 +185,51 @@ def setTiltDisabledReturn(sx,val):
     else:
         sx[23] &= 0xdf 
     recalcChecksum(sx)
+def getTiltDisabledReturnValue(sx):
+    return sx[21]
+def getTiltDisabledReturn(sx):
+    return sx[23]
 
 def setOnThreshold(sx,val):
     sx[15] = min(max(val,0),0x7f)
     recalcChecksum(sx)
+def getOnThreshold(sx):
+    return sx[15]
 
 def recalcChecksum(sx):
-    #sx[556] = sx[32] + sx[50] + sx[60]  + sx[35] + sx[36] + sx[93] + sx[94] + sx[110] + sx[111] + sx[53] + sx[28] + sx[108] + sx[20] + sx[21] + sx[15] + sx[23]
     sx[556] = sx[32] + sx[50] + sx[60]  + sx[110] + sx[111] + sx[53] + sx[28] + sx[108] + sx[20] + sx[21] + sx[15] + sx[23]
     sx[556] %= 0x7f
-    return sx[556]
+    return sx[556] 
+
+def save(sx, filename):
+    f = open(filename,'bw')
+    pickle.dump(sx,f)
+
+def load(filename):
+    f = open(filename,'br')
+    sx = pickle.load(f) 
+
+def show(sx):
+    print("Current Configuration:")
+    print("")
+    print(" Channel:                       " + getChannel(sx))
+    print(" Pressure CC:                   " + getPressureCC(sx))
+    print(" Pressure sends Chan. Pressure: " + getPressureChanPressureMode(sx))
+    print(" Tilt CC:                       " + getTiltCC(sx))
+    print(" Tilt sends Bend:               " + getTiltBendMode(sx))
+    print(" Pad Bend Max:                  " + getPadBendMax(sx))
+    print(" Pad Bend Min:                  " + getPadBendMin(sx))
+    print(" Tilt Bend Max:                 " + getTiltBendMax(sx))
+    print(" Tilt Bend Min:                 " + getTiltBendMin(sx))
+    print(" Velocity Sensitivity:          " + getVelocitySensitivity(sx))
+    print(" Pressure Sensitivity:          " + getPressureSensitivity(sx))
+    print(" Tilt Sensitivity:              " + getTiltSensitivity(sx))
+    print("")
+    print(" Velocity Curve:                " + getTiltSensitivity(sx))
+    print(" Return a Value...")
+    print("   when Pressure Disabled:      " + getPressureDisabledReturn(sx))
+    print("    Disabled Pressure Value:    " + getPresureDisabledReturnValue(sx))
+    print("   when Tilt Disabled:          " + getTiltDisabledReturn(sx))
+    print("    Disabled Tilt Value:        " + getTiltDisabledReturnValue(sx))
+    print(" Note-On Threshold:             " + getOnThreshold())
 
