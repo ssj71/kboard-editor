@@ -1,5 +1,9 @@
 #spencer jackson
 
+#from pygame import midi
+
+midi_out = 0
+#it would be nice if these were constants
 hi = [0x04, 0xf0, 0x7e, 0x7f, 0x07, 0x06, 0x01, 0xf7]
 default = [
 0xf0, 0x00, 0x01, #3
@@ -105,17 +109,17 @@ def getTiltBendMode(sx):
 def setPadBendMax(sx,val): 
     val = min(max(val,0),12)
     v = 0x7f-semitones[val]
-    sx[35] = min(max(v,0),0x7f)
+    sx[33] = min(max(v,0),0x7f)
     recalcChecksum(sx)
 def setPadBendMin(sx,val):
     val = min(max(val,0),12)
     v = semitones[val]
-    sx[36] = min(max(v,0),0x7f)
+    sx[34] = min(max(v,0),0x7f)
     recalcChecksum(sx)
 def getPadBendMax(sx):
-    return semitones.index(sx[35])
+    return semitones.index(0x7f-sx[33])
 def getPadBendMin(sx):
-    return semitones.index(sx[36])
+    return semitones.index(sx[34])
 
 def setTiltBendMax(sx,val): 
     val = min(max(val,0),12)
@@ -128,7 +132,7 @@ def setTiltBendMin(sx,val):
     sx[94] = min(max(v,0),0x7f)
     recalcChecksum(sx)
 def getTiltBendMax(sx): 
-    return semitones.index(sx[93])
+    return semitones.index(0x7f-sx[93])
 def getTiltBendMin(sx): 
     return semitones.index(sx[94])
 
@@ -142,7 +146,7 @@ def setVelocitySensitivity(sx,val):
     sx[110] = min(max(val,0),0x7f)
     recalcChecksum(sx)
 def getVelocitySensitivity(sx):
-    return 127*sx[111]/0x40 + sx[110]
+    return int(128*sx[111]/0x40) + sx[110]
 
 def setPressureSensitivity(sx,val):
     sx[53] = min(max(val,0),0x7f)
@@ -210,26 +214,50 @@ def load(filename):
     sx = pickle.load(f) 
 
 def show(sx):
+    print("")
     print("Current Configuration:")
     print("")
-    print(" Channel:                       " + getChannel(sx))
-    print(" Pressure CC:                   " + getPressureCC(sx))
-    print(" Pressure sends Chan. Pressure: " + getPressureChanPressureMode(sx))
-    print(" Tilt CC:                       " + getTiltCC(sx))
-    print(" Tilt sends Bend:               " + getTiltBendMode(sx))
-    print(" Pad Bend Max:                  " + getPadBendMax(sx))
-    print(" Pad Bend Min:                  " + getPadBendMin(sx))
-    print(" Tilt Bend Max:                 " + getTiltBendMax(sx))
-    print(" Tilt Bend Min:                 " + getTiltBendMin(sx))
-    print(" Velocity Sensitivity:          " + getVelocitySensitivity(sx))
-    print(" Pressure Sensitivity:          " + getPressureSensitivity(sx))
-    print(" Tilt Sensitivity:              " + getTiltSensitivity(sx))
+    print(" Channel:                       " + str(getChannel(sx)))
+    print(" Pressure CC:                   " + str(getPressureCC(sx)))
+    a = "No"
+    if getPressureChanPressureMode(sx):
+        a = "Yes"
+    print(" Pressure sends Chan. Pressure: " + a)
+    print(" Tilt CC:                       " + str(getTiltCC(sx)))
+    a = "No"
+    if getTiltBendMode(sx):
+        a = "Yes"
+    print(" Tilt sends Bend:               " + a)
+    print(" Pad Bend Max:                 +" + str(getPadBendMax(sx)) + " semitone")
+    print(" Pad Bend Min:                 -" + str(getPadBendMin(sx)) + " semitone")
+    print(" Tilt Bend Max:                +" + str(getTiltBendMax(sx)) + " semitone")
+    print(" Tilt Bend Min:                -" + str(getTiltBendMin(sx)) + " semitone")
+    print(" Velocity Sensitivity:          " + str(getVelocitySensitivity(sx)))
+    print(" Pressure Sensitivity:          " + str(getPressureSensitivity(sx)))
+    print(" Tilt Sensitivity:              " + str(getTiltSensitivity(sx)))
     print("")
-    print(" Velocity Curve:                " + getTiltSensitivity(sx))
+    print(" Velocity Curve:                " + str(getTiltSensitivity(sx)))
     print(" Return a Value...")
-    print("   when Pressure Disabled:      " + getPressureDisabledReturn(sx))
-    print("    Disabled Pressure Value:    " + getPresureDisabledReturnValue(sx))
-    print("   when Tilt Disabled:          " + getTiltDisabledReturn(sx))
-    print("    Disabled Tilt Value:        " + getTiltDisabledReturnValue(sx))
-    print(" Note-On Threshold:             " + getOnThreshold())
+    a = "No"
+    if getPressureDisabledReturn(sx):
+        a = "Yes"
+    print("   when Pressure Disabled:      " + a)
+    print("    Disabled Pressure Value:    " + str(getPressureDisabledReturnValue(sx)))
+    a = "No"
+    if getTiltDisabledReturn(sx):
+        a = "Yes"
+    print("   when Tilt Disabled:          " + a)
+    print("    Disabled Tilt Value:        " + str(getTiltDisabledReturnValue(sx)))
+    print(" Note-On Threshold:             " + str(getOnThreshold(sx)))
+    print("")
 
+#def init():
+#    midi.init()
+#    midi_out = midi.Output(midi.get_default_output_id())
+#    return default #TODO: this returns reference, need to return copy
+#
+#
+#def send(sx):
+#    #this isn't going to work, expects a string not a list
+#    midi_out.write_sys_ex(sx)
+    
