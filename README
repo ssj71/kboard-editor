@@ -1,10 +1,10 @@
-This is a simple editor for the kboard, primarily intended for linux users. Well, really its intended for myself, but anyone is welcome to use it. The only functionality this offers that the official editor from KMI is opportunity to set bend to separate rangeis for up and down, and some sensitivities have more range. That and linux compatibility.
+This is a simple editor for the kboard, primarily intended for linux users. Well, really it's intended for myself, but anyone is welcome to use it. The only functionality this offers over the official editor from KMI is opportunity to set bend to separate ranges for up and down, and some sensitivities can be set to a larger range. That and linux compatibility.
 
 This is very unofficial and for all I know you could brick your kboard or send your children to war or something else awful so absolutely no guarantees offered or implied.
 
-There is no installation required, as it is meant to be used in the interactive python interpreter. It should be compatible with python2.7 ot python 3, but most distros only have pygame packaged for python 2.7 even though it is python3 compatible. For convenience though you can copy kboard.py to usr/local/lib/python2.7/dist-packages/ and it will be available regardless of where your terminal is when you run python. Otherwise you need to be sure you are in this directory when you run python.
+There is no installation required, as it is meant to be used in the interactive python interpreter. It should be compatible with both python2.7 and python 3, but most distros only have pygame packaged for python 2.7 even though pygame is python3 compatible. For convenience you can copy kboard.py to usr/local/lib/python2.7/dist-packages/ and it will be available regardless of where your terminal is when you run python. Otherwise you need to be sure you are in this directory when you run python.
 
-There are dependencies though for using this script. On ubuntu install them all simply by typing:
+There are a few simple dependencies for using this script. On ubuntu install them all simply by typing:
     sudo apt-get install python2.7 python-pygame
 
 And it will get what you need.
@@ -20,10 +20,11 @@ Once that is done simply run the commands:
 
 The kboard module sends the sysex through the alsa midi_through output port, so be sure to connect that to the kboard.
 
-Most functions allow a range of 0-127, but exceptions are noted below. Some of the ranges indicated are what the KMI app limits you to, though in this app they aren't actually limited to this range. Here is the complete list of available functions and their description:
+Most functions allow a range of 0-127, but exceptions are noted below. Some of the ranges indicated are what the KMI app limits you to, though in this app they aren't actually limited to this range. Out of bounds values are clamped to the min or max. 
+Here is the complete list of available functions and their description:
 
     kboard.load("filename") # saves the current configuration sysex to a file
-    kboard.save("filename") # loads a sysex file into the current configuration but does not send it to the kboard
+    kboard.save("filename") # loads a saved file into the current configuration but does not send it to the kboard
 
     kboard.send() # sends the current configuration sysex to the kboard
 
@@ -53,3 +54,28 @@ Most functions allow a range of 0-127, but exceptions are noted below. Some of t
 
     kboard.reset() # resets the current configuration to the default values
 
+After each action the current configuration is shown such as:
+Current KBoard Configuration:
+
+ Channel:                       0
+ Pressure CC:                   1
+ Pressure sends Chan. Pressure: No
+ Tilt CC:                       127
+ Tilt sends Bend:               Yes
+ Pad Bend Max:                 +12 semitone
+ Pad Bend Min:                 -12 semitone
+ Tilt Bend Max:                +1 semitone
+ Tilt Bend Min:                -1 semitone
+ Velocity Sensitivity:          100
+ Pressure Sensitivity:          100
+ Tilt Sensitivity:              77
+
+ Velocity Curve:                lin
+ Return a Value...
+   when Pressure Disabled:      Yes
+    Disabled Pressure Value:    127
+   when Tilt Disabled:          Yes
+    Disabled Tilt Value:        127
+ Note-On Threshold:             16
+
+The configuration has no effect until it is sent to the kboard using kboard.send().
