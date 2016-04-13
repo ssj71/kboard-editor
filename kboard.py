@@ -1,10 +1,14 @@
 #spencer jackson
 
-#from pygame import midi
+from pygame import midi
+import rlcompleter
+import readline
+readline.parse_and_bind("tab: complete")
 
-midi_out = 0
 #it would be nice if these were constants
-hi = [0x04, 0xf0, 0x7e, 0x7f, 0x07, 0x06, 0x01, 0xf7]
+midi.init()
+midi_out = midi.Output(midi.get_default_output_id())
+hi = [0xf0, 0x7e, 0x7f, 0x07, 0x06, 0x01, 0xf7]
 default = [
 0xf0, 0x00, 0x01, #3
 0x5f, 0x7a, 0x1a, 0x00, 0x01, 0x00, 0x02, 0x22, 0x20, 0x2e, 0x46, 0x00, #15
@@ -66,198 +70,221 @@ default = [
 0x00, 0x64, 0x7f, 0x00, 0x00, 0x06, 0x03, 0x06, 0x20, 0x01, 0x00, 0x00, #555
 0x00, 0x03, 0x00, 0x00, 0x00, 0xf7 #561
 ]
+work = list(default)
 
 #            0  1  2  3  4  5  6  7  8  9  10 11 12
 semitones = [64, 58, 53, 48, 43, 37, 32, 27, 23, 16, 11, 6, 0]
 
-def setChannel(sx,val):
-    sx[32] = min(max(val,0),15)
-    recalcChecksum(sx)
-def getChannel(sx):
-    return sx[32]
 
-def setPressureCC(sx,val):
-    sx[50] = min(max(val,0),0x7f)
-    recalcChecksum(sx)
-def getPressureCC(sx):
-    return sx[50]
+def setChannel(val):
+    work[32] = min(max(val,0),15)
+    recalcChecksum()
+    show();
+def getChannel():
+    return work[32]
 
-def setPressureChanPressureMode(sx,val):
+def setPressureCC(val):
+    work[50] = min(max(val,0),0x7f)
+    recalcChecksum()
+    show();
+def getPressureCC():
+    return work[50]
+
+def setPressureChanPressureMode(val):
     if(val):
-        sx[55] = 0x04
+        work[55] = 0x04
     else:
-        sx[55] = 0
+        work[55] = 0
     # this doesn't touch checksum
-def getPressureChanPressureMode(sx):
-    return sx[55]
+    show()
+def getPressureChanPressureMode():
+    return work[55]
 
-def setTiltCC(sx,val):
-    sx[60] = min(max(val,0),0x7f)
-    recalcChecksum(sx)
-def getTiltCC(sx):
-    return sx[60]
+def setTiltCC(val):
+    work[60] = min(max(val,0),0x7f)
+    recalcChecksum()
+    show();
+def getTiltCC():
+    return work[60]
 
-def setTiltBendMode(sx,val):
+def setTiltBendMode(val):
     if(val):
-        sx[63] = 0x10
+        work[63] = 0x10
     else:
-        sx[63] = 0
+        work[63] = 0
     # this doesn't touch checksum
-def getTiltBendMode(sx):
-    return sx[63]
+    show()
+def getTiltBendMode():
+    return work[63]
 
-def setPadBendMax(sx,val): 
+def setPadBendMax(val): 
     val = min(max(val,0),12)
     v = 0x7f-semitones[val]
-    sx[33] = min(max(v,0),0x7f)
-    recalcChecksum(sx)
-def setPadBendMin(sx,val):
+    work[33] = min(max(v,0),0x7f)
+    recalcChecksum(work)
+    show();
+def setPadBendMin(val):
     val = min(max(val,0),12)
     v = semitones[val]
-    sx[34] = min(max(v,0),0x7f)
-    recalcChecksum(sx)
-def getPadBendMax(sx):
-    return semitones.index(0x7f-sx[33])
-def getPadBendMin(sx):
-    return semitones.index(sx[34])
+    work[34] = min(max(v,0),0x7f)
+    recalcChecksum()
+    show();
+def getPadBendMax():
+    return semitones.index(0x7f-work[33])
+def getPadBendMin():
+    return semitones.index(work[34])
 
-def setTiltBendMax(sx,val): 
+def setTiltBendMax(val): 
     val = min(max(val,0),12)
     v = 0x7f-semitones[val]
-    sx[93] = min(max(v,0),0x7f)
-    recalcChecksum(sx)
-def setTiltBendMin(sx,val):
+    work[93] = min(max(v,0),0x7f)
+    recalcChecksum()
+    show();
+def setTiltBendMin(val):
     val = min(max(val,0),12)
     v = semitones[val]
-    sx[94] = min(max(v,0),0x7f)
-    recalcChecksum(sx)
-def getTiltBendMax(sx): 
-    return semitones.index(0x7f-sx[93])
-def getTiltBendMin(sx): 
-    return semitones.index(sx[94])
+    work[94] = min(max(v,0),0x7f)
+    recalcChecksum()
+    show();
+def getTiltBendMax(): 
+    return semitones.index(0x7f-work[93])
+def getTiltBendMin(): 
+    return semitones.index(work[94])
 
 #accepts (0,255)
-def setVelocitySensitivity(sx,val):
+def setVelocitySensitivity(val):
     if(val > 0x7f):
-        sx[111] = 0x40
+        work[111] = 0x40
         val -= 0x7f
     else:
-        sx[111] = 0x00
-    sx[110] = min(max(val,0),0x7f)
-    recalcChecksum(sx)
-def getVelocitySensitivity(sx):
-    return int(128*sx[111]/0x40) + sx[110]
+        work[111] = 0x00
+    work[110] = min(max(val,0),0x7f)
+    recalcChecksum()
+    show();
+def getVelocitySensitivity():
+    return int(128*work[111]/0x40) + work[110]
 
-def setPressureSensitivity(sx,val):
-    sx[53] = min(max(val,0),0x7f)
-    recalcChecksum(sx)
-def getPressureSensitivity(sx):
-    return sx[53]
+def setPressureSensitivity(val):
+    work[53] = min(max(val,0),0x7f)
+    recalcChecksum()
+    show();
+def getPressureSensitivity():
+    return work[53]
 
-def setTiltSensitivity(sx,val):
-    sx[28] = min(max(0x7f-val,0),0x7f)
-    recalcChecksum(sx)
-def getTiltSensitivity(sx):
-    return sx[28]
+def setTiltSensitivity(val):
+    work[28] = min(max(0x7f-val,0),0x7f)
+    recalcChecksum()
+    show();
+def getTiltSensitivity():
+    return work[28]
 
-def setVelocityCurve(sx,val):
-    sx[108] = min(max(val,0),0x7f)
-    recalcChecksum(sx)
-def getVelocityCurve(sx):
-    return sx[108]
+def setVelocityCurve(val):
+    work[108] = min(max(val,0),0x7f)
+    recalcChecksum()
+    show();
+def getVelocityCurve():
+    return work[108]
 
-def setPressureDisabledReturnValue(sx,val):
-    sx[20] = min(max(val,0),0x7f)
-    recalcChecksum(sx)
-def setPressureDisabledReturn(sx,val):
+def setPressureDisabledReturnValue(val):
+    work[20] = min(max(val,0),0x7f)
+    recalcChecksum()
+    show();
+def setPressureDisabledReturn(val):
     if val:
-        sx[23] |= 0x10
+        work[23] |= 0x10
     else:
-        sx[23] &= 0xef 
-    recalcChecksum(sx)
-def getPressureDisabledReturnValue(sx):
-    return sx[20]
-def getPressureDisabledReturn(sx):
-    return sx[23]
+        work[23] &= 0xef 
+    recalcChecksum()
+    show();
+def getPressureDisabledReturnValue():
+    return work[20]
+def getPressureDisabledReturn():
+    return work[23]
 
-def setTiltDisabledReturnValue(sx,val):
-    sx[21] = min(max(val,0),0x7f)
-    recalcChecksum(sx)
-def setTiltDisabledReturn(sx,val):
+def setTiltDisabledReturnValue(val):
+    work[21] = min(max(val,0),0x7f)
+    recalcChecksum()
+    show();
+def setTiltDisabledReturn(val):
     if val:
-        sx[23] |= 0x20
+        work[23] |= 0x20
     else:
-        sx[23] &= 0xdf 
-    recalcChecksum(sx)
-def getTiltDisabledReturnValue(sx):
-    return sx[21]
-def getTiltDisabledReturn(sx):
-    return sx[23]
+        work[23] &= 0xdf 
+    recalcChecksum()
+    show();
+def getTiltDisabledReturnValue():
+    return work[21]
+def getTiltDisabledReturn():
+    return work[23]
 
-def setOnThreshold(sx,val):
-    sx[15] = min(max(val,0),0x7f)
-    recalcChecksum(sx)
-def getOnThreshold(sx):
-    return sx[15]
+def setOnThreshold(val):
+    work[15] = min(max(val,0),0x7f)
+    recalcChecksum()
+    show();
+def getOnThreshold():
+    return work[15]
 
-def recalcChecksum(sx):
-    sx[556] = sx[32] + sx[50] + sx[60]  + sx[110] + sx[111] + sx[53] + sx[28] + sx[108] + sx[20] + sx[21] + sx[15] + sx[23]
-    sx[556] %= 0x7f
-    return sx[556] 
+def recalcChecksum():
+    work[556] = work[32] + work[50] + work[60]  + work[110] + work[111] + work[53] + work[28] + work[108] + work[20] + work[21] + work[15] + work[23]
+    work[556] %= 0x7f
+    return work[556] 
 
-def save(sx, filename):
+def save(filename):
     f = open(filename,'bw')
-    pickle.dump(sx,f)
+    pickle.dump(work,f)
 
 def load(filename):
     f = open(filename,'br')
-    sx = pickle.load(f) 
+    work = pickle.load(f) 
 
-def show(sx):
+def show():
     print("")
-    print("Current Configuration:")
+    print("Current KBoard Configuration:")
     print("")
-    print(" Channel:                       " + str(getChannel(sx)))
-    print(" Pressure CC:                   " + str(getPressureCC(sx)))
+    print(" Channel:                       " + str(getChannel()))
+    print(" Pressure CC:                   " + str(getPressureCC()))
     a = "No"
-    if getPressureChanPressureMode(sx):
+    if getPressureChanPressureMode():
         a = "Yes"
     print(" Pressure sends Chan. Pressure: " + a)
-    print(" Tilt CC:                       " + str(getTiltCC(sx)))
+    print(" Tilt CC:                       " + str(getTiltCC()))
     a = "No"
-    if getTiltBendMode(sx):
+    if getTiltBendMode():
         a = "Yes"
     print(" Tilt sends Bend:               " + a)
-    print(" Pad Bend Max:                 +" + str(getPadBendMax(sx)) + " semitone")
-    print(" Pad Bend Min:                 -" + str(getPadBendMin(sx)) + " semitone")
-    print(" Tilt Bend Max:                +" + str(getTiltBendMax(sx)) + " semitone")
-    print(" Tilt Bend Min:                -" + str(getTiltBendMin(sx)) + " semitone")
-    print(" Velocity Sensitivity:          " + str(getVelocitySensitivity(sx)))
-    print(" Pressure Sensitivity:          " + str(getPressureSensitivity(sx)))
-    print(" Tilt Sensitivity:              " + str(getTiltSensitivity(sx)))
+    print(" Pad Bend Max:                 +" + str(getPadBendMax()) + " semitone")
+    print(" Pad Bend Min:                 -" + str(getPadBendMin()) + " semitone")
+    print(" Tilt Bend Max:                +" + str(getTiltBendMax()) + " semitone")
+    print(" Tilt Bend Min:                -" + str(getTiltBendMin()) + " semitone")
+    print(" Velocity Sensitivity:          " + str(getVelocitySensitivity()))
+    print(" Pressure Sensitivity:          " + str(getPressureSensitivity()))
+    print(" Tilt Sensitivity:              " + str(getTiltSensitivity()))
     print("")
-    print(" Velocity Curve:                " + str(getTiltSensitivity(sx)))
+    print(" Velocity Curve:                " + str(getTiltSensitivity()))
     print(" Return a Value...")
     a = "No"
-    if getPressureDisabledReturn(sx):
+    if getPressureDisabledReturn():
         a = "Yes"
     print("   when Pressure Disabled:      " + a)
-    print("    Disabled Pressure Value:    " + str(getPressureDisabledReturnValue(sx)))
+    print("    Disabled Pressure Value:    " + str(getPressureDisabledReturnValue()))
     a = "No"
-    if getTiltDisabledReturn(sx):
+    if getTiltDisabledReturn():
         a = "Yes"
     print("   when Tilt Disabled:          " + a)
-    print("    Disabled Tilt Value:        " + str(getTiltDisabledReturnValue(sx)))
-    print(" Note-On Threshold:             " + str(getOnThreshold(sx)))
+    print("    Disabled Tilt Value:        " + str(getTiltDisabledReturnValue()))
+    print(" Note-On Threshold:             " + str(getOnThreshold()))
     print("")
 
-#def init():
-#    midi.init()
-#    midi_out = midi.Output(midi.get_default_output_id())
-#    return default #TODO: this returns reference, need to return copy
-#
-#
-#def send(sx):
-#    #this isn't going to work, expects a string not a list
-#    midi_out.write_sys_ex(sx)
+def reset():
+    work = list(default)
+
+
+#send the current sysex to the kboard
+def send():
+    #this isn't going to work, expects a string not a list
+    show()
+    midi_out.write_sys_ex(0,work)
     
+#initialize
+midi_out.write_sys_ex(0,hi)
+show()
