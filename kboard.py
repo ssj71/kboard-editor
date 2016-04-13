@@ -1,6 +1,24 @@
 #spencer jackson
 
+'''
+kboard.py - a module for editing and sending kboard configuration sysex messages
+
+Copyright 2016, Spencer Jackson <ssjackson71@gmailcom>
+
+kboard.py is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+'''
+
 from pygame import midi
+import pickle
 import rlcompleter
 import readline
 readline.parse_and_bind("tab: complete")
@@ -74,7 +92,12 @@ work = list(default)
 
 #            0  1  2  3  4  5  6  7  8  9  10 11 12
 semitones = [64, 58, 53, 48, 43, 37, 32, 27, 23, 16, 11, 6, 0]
+curves = ["lin","log","sin","cos","exp","inv"]
 
+def yesorno(s):
+    if s.find("y") + s.find("Y") == -2:
+        return 0
+    return 1
 
 def setChannel(val):
     work[32] = min(max(val,0),15)
@@ -91,6 +114,8 @@ def getPressureCC():
     return work[50]
 
 def setPressureChanPressureMode(val):
+    if isinstance(val,str):
+        val = yesorno(val)
     if(val):
         work[55] = 0x04
     else:
@@ -108,6 +133,8 @@ def getTiltCC():
     return work[60]
 
 def setTiltBendMode(val):
+    if isinstance(val,str):
+        val = yesorno(val)
     if(val):
         work[63] = 0x10
     else:
@@ -121,9 +148,11 @@ def setPadBendMax(val):
     val = min(max(val,0),12)
     v = 0x7f-semitones[val]
     work[33] = min(max(v,0),0x7f)
-    recalcChecksum(work)
+    recalcChecksum()
     show();
 def setPadBendMin(val):
+    if val < 0:
+        val = -val
     val = min(max(val,0),12)
     v = semitones[val]
     work[34] = min(max(v,0),0x7f)
@@ -141,6 +170,8 @@ def setTiltBendMax(val):
     recalcChecksum()
     show();
 def setTiltBendMin(val):
+    if val < 0:
+        val = -val
     val = min(max(val,0),12)
     v = semitones[val]
     work[94] = min(max(v,0),0x7f)
@@ -155,14 +186,14 @@ def getTiltBendMin():
 def setVelocitySensitivity(val):
     if(val > 0x7f):
         work[111] = 0x40
-        val -= 0x7f
+        val -= 0xf0
     else:
         work[111] = 0x00
     work[110] = min(max(val,0),0x7f)
     recalcChecksum()
     show();
 def getVelocitySensitivity():
-    return int(128*work[111]/0x40) + work[110]
+    return int(0xf0*work[111]/0x40) + work[110]
 
 def setPressureSensitivity(val):
     work[53] = min(max(val,0),0x7f)
@@ -176,20 +207,24 @@ def setTiltSensitivity(val):
     recalcChecksum()
     show();
 def getTiltSensitivity():
-    return work[28]
+    return 0x7f-work[28]
 
 def setVelocityCurve(val):
-    work[108] = min(max(val,0),0x7f)
+    if isinstance(val,str):
+        val = curves.index(val)
+    work[108] = min(max(val,0),5)
     recalcChecksum()
     show();
 def getVelocityCurve():
-    return work[108]
+    return curves[work[108]]
 
 def setPressureDisabledReturnValue(val):
     work[20] = min(max(val,0),0x7f)
     recalcChecksum()
     show();
 def setPressureDisabledReturn(val):
+    if isinstance(val,str):
+        val = yesorno(val)
     if val:
         work[23] |= 0x10
     else:
@@ -199,13 +234,15 @@ def setPressureDisabledReturn(val):
 def getPressureDisabledReturnValue():
     return work[20]
 def getPressureDisabledReturn():
-    return work[23]
+    return work[23] & 0x10
 
 def setTiltDisabledReturnValue(val):
     work[21] = min(max(val,0),0x7f)
     recalcChecksum()
     show();
 def setTiltDisabledReturn(val):
+    if isinstance(val,str):
+        val = yesorno(val)
     if val:
         work[23] |= 0x20
     else:
@@ -215,7 +252,7 @@ def setTiltDisabledReturn(val):
 def getTiltDisabledReturnValue():
     return work[21]
 def getTiltDisabledReturn():
-    return work[23]
+    return work[23] & 0x20
 
 def setOnThreshold(val):
     work[15] = min(max(val,0),0x7f)
@@ -230,12 +267,16 @@ def recalcChecksum():
     return work[556] 
 
 def save(filename):
-    f = open(filename,'bw')
+    f = open(filename,'wb')
     pickle.dump(work,f)
+    f.close()
 
 def load(filename):
-    f = open(filename,'br')
-    work = pickle.load(f) 
+    global work
+    f = open(filename,'rb')
+    work = list(pickle.load(f))
+    f.close()
+    show()
 
 def show():
     print("")
@@ -260,7 +301,7 @@ def show():
     print(" Pressure Sensitivity:          " + str(getPressureSensitivity()))
     print(" Tilt Sensitivity:              " + str(getTiltSensitivity()))
     print("")
-    print(" Velocity Curve:                " + str(getTiltSensitivity()))
+    print(" Velocity Curve:                " + str(getVelocityCurve()))
     print(" Return a Value...")
     a = "No"
     if getPressureDisabledReturn():
@@ -276,6 +317,7 @@ def show():
     print("")
 
 def reset():
+    global work
     work = list(default)
 
 
