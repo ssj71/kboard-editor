@@ -226,15 +226,15 @@ def setPressureDisabledReturn(val):
     if isinstance(val,str):
         val = yesorno(val)
     if val:
-        work[23] |= 0x10
-    else:
         work[23] &= 0xef 
+    else:
+        work[23] |= 0x10
     recalcChecksum()
     show();
 def getPressureDisabledReturnValue():
     return work[20]
 def getPressureDisabledReturn():
-    return work[23] & 0x10
+    return not(work[23] & 0x10)
 
 def setTiltDisabledReturnValue(val):
     work[21] = min(max(val,0),0x7f)
@@ -244,15 +244,15 @@ def setTiltDisabledReturn(val):
     if isinstance(val,str):
         val = yesorno(val)
     if val:
-        work[23] |= 0x20
-    else:
         work[23] &= 0xdf 
+    else:
+        work[23] |= 0x20
     recalcChecksum()
     show();
 def getTiltDisabledReturnValue():
     return work[21]
 def getTiltDisabledReturn():
-    return work[23] & 0x20
+    return not(work[23] & 0x20)
 
 def setOnThreshold(val):
     work[15] = min(max(val,0),0x7f)
@@ -315,16 +315,17 @@ def show():
     print("    Disabled Tilt Value:        " + str(getTiltDisabledReturnValue()))
     print(" Note-On Threshold:             " + str(getOnThreshold()))
     print("")
+    send()
 
 def reset():
     global work
     work = list(default)
+    show()
 
 
 #send the current sysex to the kboard
 def send():
     #this isn't going to work, expects a string not a list
-    show()
     midi_out.write_sys_ex(0,work)
     
 #initialize

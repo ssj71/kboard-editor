@@ -13,8 +13,8 @@ Once that is done simply run the commands:
 
     python
     import kboard #this will show you the current configuration
+    #you can change whatever you like such as:
     kboard.setOnThreshold(25) #tab will autocomplete, and tab 2x will show you what all the various set functions are.
-    kboard.send()  #this dumps the sysex to the kboard
     exit() #leave python
 
 
@@ -24,10 +24,7 @@ Most functions allow a range of 0-127, but exceptions are noted below. Some of t
 Here is the complete list of available functions and their description:
 
     kboard.load("filename") # saves the current configuration sysex to a file
-    kboard.save("filename") # loads a saved file into the current configuration but does not send it to the kboard
-
-    kboard.send() # sends the current configuration sysex to the kboard
-
+    kboard.save("filename") # loads a saved file into the current configuration 
     kboard.setChannel(v) # 0-15 zero indexed midi channel
     kboard.setOnThreshold(v) # threshold for turning on a note
 
@@ -78,4 +75,3 @@ Current KBoard Configuration:
     Disabled Tilt Value:        127
  Note-On Threshold:             16
 
-The configuration has no effect until it is sent to the kboard using kboard.send().
