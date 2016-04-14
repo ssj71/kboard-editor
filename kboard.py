@@ -186,7 +186,7 @@ def getTiltBendMin():
 def setVelocitySensitivity(val):
     if(val > 0x7f):
         work[111] = 0x40
-        val -= 0xf0
+        val -= 0x80
     else:
         work[111] = 0x00
     work[110] = min(max(val,0),0x7f)
