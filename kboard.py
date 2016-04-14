@@ -193,7 +193,7 @@ def setVelocitySensitivity(val):
     recalcChecksum()
     show();
 def getVelocitySensitivity():
-    return int(0xf0*work[111]/0x40) + work[110]
+    return int(0x80*work[111]/0x40) + work[110]
 
 def setPressureSensitivity(val):
     work[53] = min(max(val,0),0x7f)
