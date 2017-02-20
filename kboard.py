@@ -280,7 +280,7 @@ def load(filename):
 
 def show():
     print("")
-    print("Current KBoard Configuration:")
+    print("Configuration to send to KBoard:")
     print("")
     print(" Channel:                       " + str(getChannel()))
     print(" Pressure CC:                   " + str(getPressureCC()))
