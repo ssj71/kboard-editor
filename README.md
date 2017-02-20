@@ -61,10 +61,10 @@ kboard.setVelocitySensitivity(v) # 0-255
 kboard.reset() # resets the current configuration to the default values
 ```
 
-After each action the current configuration is shown such as:
-Current KBoard Configuration:
-
+After each action the configuration is sent to the kboard and is shown such as:
 ```
+Configuration to send to KBoard:
+
  Channel:                       0
  Pressure CC:                   1
  Pressure sends Chan. Pressure: No
@@ -86,3 +86,4 @@ Current KBoard Configuration:
     Disabled Tilt Value:        127
  Note-On Threshold:             16
 ```
+This is the conguration that was just sent or will be sent if you call kboard.send(). There is no way to read the current configuration of the kboard.
